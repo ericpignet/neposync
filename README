@@ -1,0 +1,22 @@
+Common usage:
+  neposync -nf [OPTIONS..] [DIRECTORY]
+  neposync -fn [OPTIONS..] [DIRECTORY]
+Actions (nepomuk):
+  -nf, —nepomuk-to-files    Read tags/ratings from Nepomuk and store them in files metadata
+  -fn, —files-to-nepomuk    Read tags/ratings from files metadata and store them in Nepomuk
+  -dn, —display-nepomuk     Display all Nepomuk tags/ratings
+  -cn, —clear-nepomuk       Clear all Nepomuk tags/ratings
+Actions (amarok):
+  -af, —amarok-to-files     Read ratings from Amarok collection and store them in files metadata
+  -fa, —files-to-amarok     Read ratings from files metadata and store them in Amarok collection
+  -da, —display-amarok      Display all Amarok ratings
+Options:
+  -r   —recursive           Recurse into sub-directories
+  -f   —force               Copy tags/ratings even if empty on source side
+  -V   —verbose             Display all nepomuk output (depending on KDebug settings)
+  -h   —help                Display this usage information
+DIRECTORY is optional, if absent the current directory is synchronized
+
+Remarks: neposync uses IPTC ‘keyword’ metadata to read/store tags in image files (as Digikam)
+         neposync uses XMP ‘Rating’ metadata to read/store ratings in image files (as Digikam)
+         neposync uses ID3v2 ‘Popularimeter/POPM’ metadata to read/store ratings in MP3 files
