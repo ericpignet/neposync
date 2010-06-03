@@ -48,6 +48,7 @@ void showUsage()
     std::cout << "  -af, --amarok-to-files     Read ratings from Amarok collection and store them in files metadata" << std::endl;
     std::cout << "  -fa, --files-to-amarok     Read ratings from files metadata and store them in Amarok collection" << std::endl;
     std::cout << "  -da, --display-amarok      Display all Amarok ratings" << std::endl;
+    std::cout << "  -qa, --query-amarok QUERY  Execute Mysql query QUERY in Amarok collection" << std::endl;
     std::cout << "Options:" << std::endl;
     std::cout << "  -r   --recursive           Recurse into sub-directories" << std::endl;
     std::cout << "  -f   --force               Copy tags/ratings even if empty on source side" << std::endl;
@@ -70,6 +71,8 @@ int main(int argc, char *argv[])
     bool isAmarokToFiles = false;
     bool isFilesToAmarok = false;
     bool isDisplayAmarok = false;
+    bool isQueryAmarok = false;
+    QString amarokQuery;
     bool forceCopy = false;
     bool recurseDirectories = false;
     bool isVerbose = false;
@@ -115,6 +118,21 @@ int main(int argc, char *argv[])
         {
             isDisplayAmarok = true;
             nbActions ++;
+        }
+        else if (!strcmp(argv[i], "-qa") || !strcmp(argv[i],"--query-amarok"))
+        {
+            isQueryAmarok = true;
+            nbActions ++;
+            i++;
+            if ((i == argc) || (argv[i][0] == '-'))
+            {
+                std::cout << "A Mysql query must follow --query-amarok action." << std::endl;
+                return 1;
+            }
+            else
+            {
+                amarokQuery = argv[i];
+            }
         }
         else if (!strcmp(argv[i], "-r") || !strcmp(argv[i], "--recursive"))
         {
@@ -484,7 +502,7 @@ int main(int argc, char *argv[])
     }
 
     // Amarok initialization
-    if (isAmarokToFiles || isFilesToAmarok || isDisplayAmarok)
+    if (isAmarokToFiles || isFilesToAmarok || isDisplayAmarok || isQueryAmarok)
     {
         AmarokCollection amarokDb(isVerbose);
         if (!amarokDb.connect())
@@ -607,6 +625,27 @@ int main(int argc, char *argv[])
                     std::cout << QString(i.key().toLocal8Bit()).toStdString() << ": " << i.value() << std::endl;
                 }
                 ++i;
+            }
+        }
+
+        //------------------
+        // Query Amarok
+
+        if (isQueryAmarok)
+        {
+            if (isVerbose)
+            {
+                std::cout << "Query: " << amarokQuery.toStdString() << std::endl;
+            }
+
+            QList<QString> rows;
+            amarokDb.query(amarokQuery, rows);
+
+            QList<QString>::const_iterator row = rows.constBegin();
+            while (row != rows.constEnd())
+            {
+                std::cout << (*row).toStdString() << std::endl;
+                ++row;
             }
         }
     }

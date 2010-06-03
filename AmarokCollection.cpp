@@ -261,3 +261,49 @@ bool AmarokCollection::setRating(QString iUrl, int iRating)
     return true;
 }
 
+
+bool AmarokCollection::query(QString iQuery, QList<QString> &oResult)
+{
+    MYSQL_RES *result;
+    MYSQL_FIELD *fields;
+    MYSQL_ROW row;
+    unsigned int num_fields = 0;
+
+    if (mysql_query(m_db, iQuery.toLocal8Bit()) != 0)
+    {
+        std::cout << "Error in Mysqle query" << std::endl;
+        std::cout << "Error: " << mysql_error(m_db) << std::endl;
+        return false;
+    }
+    if (!(result = mysql_store_result(m_db)))
+    {
+        std::cout << "Error in storing results of Mysqle query" << std::endl;
+        std::cout << "Error: " << mysql_error(m_db) << std::endl;
+        return false;
+    }
+
+    num_fields = mysql_num_fields(result);
+    fields = mysql_fetch_fields(result);
+    QString headers;
+    for (unsigned int i=0; i<num_fields; i++)
+    {
+        if (i>0)
+            headers += ",";
+        headers += fields[i].name;
+    }
+    oResult.push_back(headers);
+    while ((row = mysql_fetch_row(result)) != 0)
+    {
+        QString row_s;
+        for (unsigned int i=0; i<num_fields; i++)
+        {
+            if (i>0)
+                row_s += ",";
+            row_s += row[i];
+        }
+        oResult.push_back(row_s);
+    }
+
+    mysql_free_result(result);
+    return true;
+}

@@ -22,6 +22,7 @@
 
 #include <QtCore/QString>
 #include <QtCore/QMap>
+#include <QtCore/QList>
 
 struct st_mysql;
 typedef struct st_mysql MYSQL;
@@ -38,6 +39,7 @@ public:
     bool getRating(QString iUrl, bool &oUrlPresent, int &oRating);
     bool getAllRating(QString iUrl, QMap<QString, int> &oRatings);
     bool setRating(QString iUrl, int iRating);
+    bool query(QString iQuery, QList<QString> &oResult);
 };
 
 #endif // AMAROKCOLLECTION_H
