@@ -9,15 +9,16 @@ TEMPLATE = app
 SOURCES += main.cpp \
     AmarokCollection.cpp \
     ID3Utilities.cpp
+
+# Could not find a way to retrieve common libdir to add the right /usr/lib/mysql dir
 LIBS += -lkdeui \
     -lnepomuk \
     -lkexiv2 \
     -ltag \
     -L/usr/lib/mysql \
+    -L/usr/lib64/mysql \
     -lmysqld \
     -lcrypt
 
-# OBJECTS += /usr/lib/mysql/libmysqld.a
-# QT += sql
 HEADERS += AmarokCollection.h \
     ID3Utilities.h
