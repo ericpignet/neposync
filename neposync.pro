@@ -10,15 +10,20 @@ SOURCES += main.cpp \
     AmarokCollection.cpp \
     ID3Utilities.cpp
 
-# Could not find a way to retrieve common libdir to add the right /usr/lib/mysql dir
+contains(QMAKE_HOST.arch, 64) {
+  message(Building 64 bit )
+  QMAKE_LIBDIR += /usr/lib64/mysql
+}
+
 LIBS += -lkdeui \
     -lnepomuk \
     -lkexiv2 \
     -ltag \
     -L/usr/lib/mysql \
-    -L/usr/lib64/mysql \
     -lmysqld \
     -lcrypt
 
 HEADERS += AmarokCollection.h \
     ID3Utilities.h
+#    -L/usr/lib64/mysql \
+
