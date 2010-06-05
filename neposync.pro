@@ -11,7 +11,7 @@ SOURCES += main.cpp \
     ID3Utilities.cpp
 
 contains(QMAKE_HOST.arch, 64) {
-  message(Building 64 bit )
+  message(Building 64-bit)
   QMAKE_LIBDIR += /usr/lib64/mysql
 }
 
@@ -21,9 +21,9 @@ LIBS += -lkdeui \
     -ltag \
     -L/usr/lib/mysql \
     -lmysqld \
-    -lcrypt
+    -lcrypt \
+    -lssl
 
 HEADERS += AmarokCollection.h \
     ID3Utilities.h
-#    -L/usr/lib64/mysql \
 
