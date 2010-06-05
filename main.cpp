@@ -342,6 +342,7 @@ int main(int argc, char *argv[])
                         {
                             std::cout << "  Needs to add tag: " << keyword.toStdString() << std::endl;
                             Nepomuk::Tag tag(keyword);
+                            tag.setLabel(keyword);
                             aFile.addTag(tag);
                         }
                     }
