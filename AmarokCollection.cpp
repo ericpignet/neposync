@@ -136,8 +136,10 @@ bool AmarokCollection::getRating(QString iUrl, bool &oUrlPresent, int &oRating)
     oUrlPresent = false;
     oRating = 0;
 
-    //std::string query("select rating from statistics s, urls u where s.url=u.id and u.rpath='" + iUrl.toStdString() + "'");
-    std::string query("SELECT s.rating FROM urls u LEFT OUTER JOIN statistics s ON s.url=u.id WHERE u.rpath='" + QString(iUrl.toLocal8Bit()).toStdString() + "'");
+    std::string utf8Url(iUrl.toLocal8Bit());
+    char escapedUrl[utf8Url.length() *2 +1];
+    mysql_real_escape_string(m_db, escapedUrl, utf8Url.c_str(), utf8Url.length());
+    std::string query("SELECT s.rating FROM urls u LEFT OUTER JOIN statistics s ON s.url=u.id WHERE u.rpath='" + std::string(escapedUrl) + "'");
     if (mysql_query(m_db, query.c_str()) != 0)
     {
         std::cout << "Error in Mysqle query to retrieve rating from url" << std::endl;
@@ -172,7 +174,10 @@ bool AmarokCollection::getAllRating(QString iUrl, QMap<QString, int> &oRatings)
     MYSQL_RES *result;
     MYSQL_ROW row;
 
-    std::string query("select rpath, rating from statistics s, urls u where s.url=u.id and u.rpath like '" + QString(iUrl.toLocal8Bit()).toStdString() + "%'");
+    std::string utf8Url(iUrl.toLocal8Bit());
+    char escapedUrl[utf8Url.length() *2 +1];
+    mysql_real_escape_string(m_db, escapedUrl, utf8Url.c_str(), utf8Url.length());
+    std::string query("SELECT rpath, rating FROM statistics s, urls u WHERE s.url=u.id AND u.rpath LIKE '" + std::string(escapedUrl) + "%'");
     if (mysql_query(m_db, query.c_str()) != 0)
     {
         std::cout << "Error in Mysqle query to retrieve rating from url" << std::endl;
@@ -191,7 +196,7 @@ bool AmarokCollection::getAllRating(QString iUrl, QMap<QString, int> &oRatings)
         int rating = QString(row[1]).toInt();
         if (rating > 0)
         {
-           oRatings[QString(row[0])] = rating;
+            oRatings[QString::fromLocal8Bit(row[0])] = rating;
         }
     }
     // else, no rating for this URL
@@ -207,7 +212,10 @@ bool AmarokCollection::setRating(QString iUrl, int iRating)
     MYSQL_RES *result;
     MYSQL_ROW row;
 
-    std::string query("SELECT u.id from urls u LEFT OUTER JOIN statistics s ON s.url=u.id WHERE u.rpath='" + QString(iUrl.toLocal8Bit()).toStdString() + "'");
+    std::string utf8Url(iUrl.toLocal8Bit());
+    char escapedUrl[utf8Url.length() *2 +1];
+    mysql_real_escape_string(m_db, escapedUrl, utf8Url.c_str(), utf8Url.length());
+    std::string query("SELECT u.id, s.id from urls u LEFT OUTER JOIN statistics s ON s.url=u.id WHERE u.rpath='" + std::string(escapedUrl) + "'");
     if (mysql_query(m_db, query.c_str()) != 0)
     {
         std::cout << "Error in Mysqle query to retrieve rating from url" << std::endl;
