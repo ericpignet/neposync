@@ -210,6 +210,14 @@ int main(int argc, char *argv[])
             workingDirectory = QDir::currentPath();
         }
     }
+    else
+    {
+        // Remove final / character if present
+        if (workingDirectory[workingDirectory.length()-1] == '/')
+        {
+            workingDirectory.truncate(workingDirectory.length()-1);
+        }
+    }
     if (isVerbose)
         std::cout << "Path used: " << std::string(workingDirectory.toLocal8Bit()) << std::endl;
 
