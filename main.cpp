@@ -54,11 +54,19 @@ void showUsage()
     std::cout << "  -f   --force               Copy tags/ratings even if empty on source side" << std::endl;
     std::cout << "  -V   --verbose             Display all nepomuk output (depending on KDebug settings)" << std::endl;
     std::cout << "  -h   --help                Display this usage information" << std::endl;
+    std::cout << "       --version             Display version and copyright information" << std::endl;
     std::cout << "DIRECTORY is optional, if absent the current directory is synchronized" << std::endl;
     std::cout << std::endl;
     std::cout << "Remarks: neposync uses IPTC 'keyword' metadata to read/store tags in image files (as Digikam)" << std::endl;
     std::cout << "         neposync uses XMP 'Rating' metadata to read/store ratings in image files (as Digikam)" << std::endl;
     std::cout << "         neposync uses ID3v2 'Popularimeter/POPM' metadata to read/store ratings in MP3 files" << std::endl;
+}
+
+void showVersion()
+{
+    std::cout << "Neposync 0.2" << std::endl;
+    std::cout << "Copyright © 2010 Eric Pignet" << std::endl;
+    std::cout << "Licence GPLv2+" << std::endl;
 }
 
 
@@ -150,6 +158,11 @@ int main(int argc, char *argv[])
         else if (!strcmp(argv[i], "-V") || !strcmp(argv[i], "--verbose"))
         {
             isVerbose = true;
+        }
+        else if (!strcmp(argv[i], "--version"))
+        {
+            showVersion();
+            return 0;
         }
         else if (argv[i][0] != '-')
         {
