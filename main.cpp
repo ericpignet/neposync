@@ -69,6 +69,22 @@ void showVersion()
     std::cout << "Licence GPLv2+" << std::endl;
 }
 
+void displayFileName(QString iFileName, bool isNewFile = false, bool isVerbose = false)
+{
+    static bool fileDisplayed;
+    if (isNewFile)
+    {
+        fileDisplayed = false;
+    }
+    if (    (isNewFile && isVerbose)
+         || (!isNewFile && !fileDisplayed)
+       )
+    {
+        std::cout << "File: " << QString(iFileName.toLocal8Bit()).toStdString() << std::endl;
+        fileDisplayed = true;
+    }
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -234,7 +250,8 @@ int main(int argc, char *argv[])
             if (   !it.fileInfo().suffix().compare("jpg", Qt::CaseInsensitive)
                 || !it.fileInfo().suffix().compare("jpeg", Qt::CaseInsensitive))
             {
-                std::cout << "File: " << QString(currentFileName.toLocal8Bit()).toStdString() << std::endl;
+                displayFileName(currentFileName, true, isVerbose);
+
                 Nepomuk::Resource aFile(it.filePath());
 
                 // Copy of tags
@@ -255,6 +272,7 @@ int main(int argc, char *argv[])
                     newKeywordsSorted.sort();
                     if (oldKeywordsSorted != newKeywordsSorted)
                     {
+                        displayFileName(currentFileName);
                         std::cout << "  Needs to replace IPTC keywords to: ";
                         foreach (QString keyword, newKeywords) std::cout << keyword.toStdString() << " ";
                         std::cout << std::endl;
@@ -270,6 +288,7 @@ int main(int argc, char *argv[])
                     QString rating = myXMPData.getXmpTagString("Xmp.xmp.Rating");
                     if (rating.isNull() || rating.toUInt() != aFile.rating())
                     {
+                        displayFileName(currentFileName);
                         std::cout << "  Needs to copy rating: " << QString::number(aFile.rating()).toStdString() << std::endl;
                         myXMPData.setXmpTagString("Xmp.xmp.Rating",QString::number(aFile.rating()), false);
                         myXMPData.applyChanges();
@@ -281,6 +300,7 @@ int main(int argc, char *argv[])
                     QString rating = myXMPData.getXmpTagString("Xmp.xmp.Rating");
                     if (!rating.isNull())
                     {
+                        displayFileName(currentFileName);
                         std::cout << "  Needs to clear rating" << std::endl;
                         myXMPData.setXmpTagString("Xmp.xmp.Rating",NULL, false);
                         myXMPData.applyChanges();
@@ -289,7 +309,8 @@ int main(int argc, char *argv[])
             }
             else if (!it.fileInfo().suffix().compare("mp3", Qt::CaseInsensitive))
             {
-                std::cout << "File: " << QString(currentFileName.toLocal8Bit()).toStdString() << std::endl;
+                displayFileName(currentFileName, true, isVerbose);
+
                 Nepomuk::Resource aFile(it.filePath());
 
                 if (aFile.hasProperty(aFile.ratingUri()))
@@ -298,6 +319,7 @@ int main(int argc, char *argv[])
                     ID3Utilities::getID3Rating(currentFileName, id3rating, isVerbose);
                     if ((unsigned int)id3rating != aFile.rating())
                     {
+                        displayFileName(currentFileName);
                         std::cout << "  Needs to copy rating: " << aFile.rating() << "/10" << std::endl;
                         ID3Utilities::setID3Rating(currentFileName, aFile.rating(), isVerbose);
                     }
@@ -308,6 +330,7 @@ int main(int argc, char *argv[])
                     ID3Utilities::getID3Rating(currentFileName, id3rating, isVerbose);
                     if (id3rating > 0)
                     {
+                        displayFileName(currentFileName);
                         std::cout << "  Needs to clear rating" << std::endl;
                         ID3Utilities::setID3Rating(currentFileName, 0, isVerbose);
                     }
@@ -329,14 +352,12 @@ int main(int argc, char *argv[])
                 || !it.fileInfo().suffix().compare("jpeg", Qt::CaseInsensitive))
             {
                 KExiv2Iface::KExiv2 myExifData(currentFileName);
+                displayFileName(currentFileName, true, isVerbose);
 
                 // Copy of tags
                 QStringList keywords = myExifData.getIptcKeywords();
                 if (!keywords.isEmpty() || forceCopy)
                 {
-                    std::cout << "File: " << QString(currentFileName.toLocal8Bit()).toStdString() << std::endl;
-                    if (isVerbose)
-                        std::cout << "File: " << QString(it.fileInfo().absoluteFilePath().toLocal8Bit()).toStdString() << std::endl;
                     Nepomuk::Resource aFile(it.fileInfo().absoluteFilePath());
                     QList<Nepomuk::Tag> fileTags = aFile.tags();
 
@@ -346,6 +367,7 @@ int main(int argc, char *argv[])
                     {
                         if (!keywords.contains(fileTag.label()))
                         {
+                            displayFileName(currentFileName);
                             std::cout << "  Needs to remove tag: " << fileTag.label().toStdString() << std::endl;
                             tagsToRemove.append(fileTag.resourceUri());
                         }
@@ -361,6 +383,7 @@ int main(int argc, char *argv[])
                     {
                         if (!fileTags.contains(keyword))
                         {
+                            displayFileName(currentFileName);
                             std::cout << "  Needs to add tag: " << keyword.toStdString() << std::endl;
                             Nepomuk::Tag tag(keyword);
                             tag.setLabel(keyword);
@@ -376,6 +399,7 @@ int main(int argc, char *argv[])
                     Nepomuk::Resource aFile(it.fileInfo().absoluteFilePath());
                     if (!aFile.hasProperty(aFile.ratingUri()) || rating.toUInt() != aFile.rating())
                     {
+                        displayFileName(currentFileName);
                         std::cout << "  Needs to replace rating: " << rating.toStdString() << std::endl;
                         aFile.setRating(rating.toUInt());
                     }
@@ -385,6 +409,7 @@ int main(int argc, char *argv[])
                     Nepomuk::Resource aFile(it.fileInfo().absoluteFilePath());
                     if (aFile.hasProperty(aFile.ratingUri()))
                     {
+                        displayFileName(currentFileName);
                         std::cout << "  Needs to clear rating" << std::endl;
                         aFile.removeProperty(aFile.ratingUri());
                     }
@@ -392,6 +417,8 @@ int main(int argc, char *argv[])
             }
             else if (!it.fileInfo().suffix().compare("mp3", Qt::CaseInsensitive))
             {
+                displayFileName(currentFileName, true, isVerbose);
+
                 int id3rating = 0;
                 ID3Utilities::getID3Rating(currentFileName, id3rating, isVerbose);
                 if (id3rating > 0)
@@ -399,6 +426,7 @@ int main(int argc, char *argv[])
                     Nepomuk::Resource aFile(it.fileInfo().absoluteFilePath());
                     if (!aFile.hasProperty(aFile.ratingUri()) || ((unsigned int)id3rating != aFile.rating()))
                     {
+                        displayFileName(currentFileName);
                         std::cout << "  Needs to replace rating: " << id3rating << std::endl;
                         aFile.setRating((unsigned int)id3rating);
                     }
@@ -408,6 +436,7 @@ int main(int argc, char *argv[])
                     Nepomuk::Resource aFile(it.fileInfo().absoluteFilePath());
                     if (aFile.hasProperty(aFile.ratingUri()))
                     {
+                        displayFileName(currentFileName);
                         std::cout << "  Needs to clear rating" << std::endl;
                         aFile.removeProperty(aFile.ratingUri());
                     }
@@ -434,15 +463,15 @@ int main(int argc, char *argv[])
             if (   !it.fileInfo().suffix().compare("jpg", Qt::CaseInsensitive)
                 || !it.fileInfo().suffix().compare("jpeg", Qt::CaseInsensitive))
             {
-                bool fileDisplayed = false;
+                displayFileName(currentFileName, true, isVerbose);
+
                 Nepomuk::Resource aFile(it.filePath());
 
                 // Display tags
                 QList<Nepomuk::Tag> fileTags = aFile.tags();
                 if (!fileTags.isEmpty())
                 {
-                    std::cout << "File: " << QString(currentFileName.toLocal8Bit()).toStdString() << std::endl;
-                    fileDisplayed = true;
+                    displayFileName(currentFileName);
                     std::cout << "  Tags:";
                     foreach (Nepomuk::Tag fileTag, fileTags)
                     {
@@ -454,19 +483,18 @@ int main(int argc, char *argv[])
                 // Display rating
                 if (aFile.hasProperty(aFile.ratingUri()))
                 {
-                    if (!fileDisplayed)
-                    {
-                        std::cout << "File: " << QString(currentFileName.toLocal8Bit()).toStdString() << std::endl;
-                    }
+                    displayFileName(currentFileName);
                     std::cout << "  Rating: " << aFile.rating() << std::endl;
                 }
             }
             else if (!it.fileInfo().suffix().compare("mp3", Qt::CaseInsensitive))
             {
+                displayFileName(currentFileName, true, isVerbose);
+
                 Nepomuk::Resource aFile(it.filePath());
                 if (aFile.hasProperty(aFile.ratingUri()))
                 {
-                    std::cout << "File: " << QString(currentFileName.toLocal8Bit()).toStdString() << std::endl;
+                    displayFileName(currentFileName);
                     std::cout << "  Rating: " << aFile.rating() << std::endl;
                 }
             }
@@ -491,15 +519,15 @@ int main(int argc, char *argv[])
             if (   !it.fileInfo().suffix().compare("jpg", Qt::CaseInsensitive)
                 || !it.fileInfo().suffix().compare("jpeg", Qt::CaseInsensitive))
             {
-                bool fileDisplayed = false;
+                displayFileName(currentFileName, true, isVerbose);
+
                 Nepomuk::Resource aFile(it.filePath());
 
                 // Clear tags
                 QList<Nepomuk::Tag> fileTags = aFile.tags();
                 if (!fileTags.isEmpty())
                 {
-                    std::cout << "File: " << QString(currentFileName.toLocal8Bit()).toStdString() << std::endl;
-                    fileDisplayed = true;
+                    displayFileName(currentFileName);
                     std::cout << "  Remove tags:";
                     foreach (Nepomuk::Tag fileTag, fileTags)
                     {
@@ -512,10 +540,7 @@ int main(int argc, char *argv[])
                 // Clear rating
                 if (aFile.hasProperty(aFile.ratingUri()))
                 {
-                    if (!fileDisplayed)
-                    {
-                        std::cout << "File: " << QString(currentFileName.toLocal8Bit()).toStdString() << std::endl;
-                    }
+                    displayFileName(currentFileName);
                     std::cout << "  Clear rating" << std::endl;
                     aFile.removeProperty(aFile.ratingUri());
                 }
@@ -544,8 +569,7 @@ int main(int argc, char *argv[])
 
                 if (!it.fileInfo().suffix().compare("mp3", Qt::CaseInsensitive))
                 {
-                    if (isVerbose)
-                        std::cout << "File: " << QString(currentFileName.toLocal8Bit()).toStdString() << std::endl;
+                    displayFileName(currentFileName, true, isVerbose);
 
                     QString url("." + currentFileName);
                     bool urlPresent = false;
@@ -557,6 +581,7 @@ int main(int argc, char *argv[])
                         ID3Utilities::getID3Rating(currentFileName, id3rating, isVerbose);
                         if (id3rating != amarokRating)
                         {
+                            displayFileName(currentFileName);
                             std::cout << "  Needs to copy rating: " << amarokRating << "/10" << std::endl;
                             ID3Utilities::setID3Rating(currentFileName, amarokRating, isVerbose);
                         }
@@ -567,6 +592,7 @@ int main(int argc, char *argv[])
                         ID3Utilities::getID3Rating(currentFileName, id3rating, isVerbose);
                         if (id3rating != 0)
                         {
+                            displayFileName(currentFileName);
                             std::cout << "  Needs to clear rating" << std::endl;
                             ID3Utilities::setID3Rating(currentFileName, 0, isVerbose);
                         }
@@ -587,10 +613,7 @@ int main(int argc, char *argv[])
 
                 if (!it.fileInfo().suffix().compare("mp3", Qt::CaseInsensitive))
                 {
-                    if (isVerbose)
-                    {
-                        std::cout << "File: " << QString(currentFileName.toLocal8Bit()).toStdString() << std::endl;
-                    }
+                    displayFileName(currentFileName, true, isVerbose);
 
                     int id3rating = 0;
                     ID3Utilities::getID3Rating(currentFileName, id3rating, isVerbose);
@@ -602,12 +625,14 @@ int main(int argc, char *argv[])
                         amarokDb.getRating(url, urlPresent, amarokRating);
                         if (!urlPresent)
                         {
+                            displayFileName(currentFileName);
                             std::cout << "  File has rating " << id3rating << " but is not in Amarok collection. Do nothing" << std::endl;
                         }
                         else
                         {
                             if (id3rating != amarokRating)
                             {
+                                displayFileName(currentFileName);
                                 std::cout << "  Needs to copy rating: " << id3rating << std::endl;
                                 amarokDb.setRating(url, id3rating);
                             }
@@ -621,6 +646,7 @@ int main(int argc, char *argv[])
                         amarokDb.getRating(url, urlPresent, amarokRating);
                         if (amarokRating != 0)
                         {
+                            displayFileName(currentFileName);
                             std::cout << "  Needs to clear rating" << std::endl;
                             amarokDb.setRating(url, id3rating);
                         }

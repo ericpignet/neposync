@@ -10,7 +10,8 @@ SOURCES += main.cpp \
     AmarokCollection.cpp \
     ID3Utilities.cpp
 
-contains(QMAKE_HOST.arch, 64) {
+message($$QMAKE_HOST.arch)
+contains(QMAKE_HOST.arch, "x86_64") {
   message(Building 64-bit)
   QMAKE_LIBDIR += /usr/lib64/mysql
 }
