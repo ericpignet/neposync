@@ -384,7 +384,7 @@ int main(int argc, char *argv[])
                         if (!fileTags.contains(keyword))
                         {
                             displayFileName(currentFileName);
-                            std::cout << "  Needs to add tag: " << keyword.toStdString() << std::endl;
+                            std::cout << "  Needs to add tag: " << QString(keyword.toLocal8Bit()).toStdString() << std::endl;
                             Nepomuk::Tag tag(keyword);
                             tag.setLabel(keyword);
                             aFile.addTag(tag);
@@ -475,7 +475,7 @@ int main(int argc, char *argv[])
                     std::cout << "  Tags:";
                     foreach (Nepomuk::Tag fileTag, fileTags)
                     {
-                        std::cout << " " << fileTag.label().toStdString();
+                        std::cout << " " << QString(fileTag.label().toLocal8Bit()).toStdString();
                     }
                     std::cout << std::endl;
                 }
