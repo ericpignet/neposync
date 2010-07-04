@@ -16,6 +16,7 @@ Options:
   -f   --force               Copy tags/ratings even if empty on source side
   -V   --verbose             Display all nepomuk output (depending on KDebug settings)
   -h   --help                Display this usage information
+       --version             Display version and copyright information
 DIRECTORY is optional, if absent the current directory is synchronized
 
 Remarks: neposync uses IPTC 'keyword' metadata to read/store tags in image files (as Digikam)
