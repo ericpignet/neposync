@@ -4,7 +4,7 @@ Compiling
 To compile you need:
 * QT Library 4.4 or later (c++ headers and binary lib)
 * libnepomuk from KDE SC 4.4 (headers and binary lib, usually provided by kdelibs package)
-* libkexiv2 from KDE SC 4.4 (headers and binary lib, usually provided by kdegraphics package)
+* libkexiv2 from KDE SC 4.4 (headers and binary lib, usually provided by libkexiv2 packages, previously kdegraphics)
 * libmysqlclient (headers and libmysqld.a file, usually provided by libmysqlclient package)
 
 1. qmake
