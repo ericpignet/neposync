@@ -23,6 +23,8 @@
 #include <taglib/id3v2tag.h>
 #include <taglib/popularimeterframe.h>
 
+#include <iostream>
+
 #include "ID3Utilities.h"
 
 bool ID3Utilities::getID3Rating(QString iFileName, int &oRating, bool isVerbose)
