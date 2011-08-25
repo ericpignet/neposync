@@ -1,5 +1,5 @@
 # -------------------------------------------------
-# Project created by QtCreator 2010-04-26T14:24:51
+# Neposync project. Use qmake to generate Makefile
 # -------------------------------------------------
 QT -= gui
 TARGET = neposync
@@ -23,8 +23,10 @@ LIBS += -lkdeui \
     -L/usr/lib/mysql \
     -lmysqld \
     -lcrypt \
-    -lssl
+    -lssl \
+    -lkdecore \
+    -lsoprano \
+    -lz
 
 HEADERS += AmarokCollection.h \
     ID3Utilities.h
-
