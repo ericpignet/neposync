@@ -139,7 +139,7 @@ bool AmarokCollection::getRating(QString iUrl, bool &oUrlPresent, int &oRating)
     std::string utf8Url(iUrl.toLocal8Bit());
     char escapedUrl[utf8Url.length() *2 +1];
     mysql_real_escape_string(m_db, escapedUrl, utf8Url.c_str(), utf8Url.length());
-    std::string query("SELECT s.rating FROM urls u LEFT OUTER JOIN statistics s ON s.url=u.id WHERE u.rpath='" + std::string(escapedUrl) + "'");
+    std::string query("SELECT s.rating FROM devices d, urls u LEFT OUTER JOIN statistics s ON s.url=u.id WHERE u.deviceid=d.id AND CONCAT(TRIM(TRAILING '/' FROM d.lastmountpoint), SUBSTRING(u.rpath, 2))='" + std::string(escapedUrl) + "'");
     if (mysql_query(m_db, query.c_str()) != 0)
     {
         std::cout << "Error in Mysqle query to retrieve rating from url" << std::endl;
@@ -177,7 +177,7 @@ bool AmarokCollection::getAllRating(QString iUrl, QMap<QString, int> &oRatings)
     std::string utf8Url(iUrl.toLocal8Bit());
     char escapedUrl[utf8Url.length() *2 +1];
     mysql_real_escape_string(m_db, escapedUrl, utf8Url.c_str(), utf8Url.length());
-    std::string query("SELECT rpath, rating FROM statistics s, urls u WHERE s.url=u.id AND u.rpath LIKE '" + std::string(escapedUrl) + "%'");
+    std::string query("SELECT CONCAT(TRIM(TRAILING '/' FROM d.lastmountpoint), SUBSTRING(u.rpath, 2)), rating FROM statistics s, urls u, devices d WHERE s.url=u.id AND u.deviceid=d.id AND CONCAT(TRIM(TRAILING '/' FROM d.lastmountpoint), SUBSTRING(u.rpath, 2)) LIKE '" + std::string(escapedUrl) + "%'");
     if (mysql_query(m_db, query.c_str()) != 0)
     {
         std::cout << "Error in Mysqle query to retrieve rating from url" << std::endl;
@@ -215,7 +215,7 @@ bool AmarokCollection::setRating(QString iUrl, int iRating)
     std::string utf8Url(iUrl.toLocal8Bit());
     char escapedUrl[utf8Url.length() *2 +1];
     mysql_real_escape_string(m_db, escapedUrl, utf8Url.c_str(), utf8Url.length());
-    std::string query("SELECT u.id, s.id from urls u LEFT OUTER JOIN statistics s ON s.url=u.id WHERE u.rpath='" + std::string(escapedUrl) + "'");
+    std::string query("SELECT u.id, s.id from devices d, urls u LEFT OUTER JOIN statistics s ON s.url=u.id WHERE u.deviceid=d.id AND CONCAT(TRIM(TRAILING '/' FROM d.lastmountpoint), SUBSTRING(u.rpath, 2))='" + std::string(escapedUrl) + "'");
     if (mysql_query(m_db, query.c_str()) != 0)
     {
         std::cout << "Error in Mysqle query to retrieve rating from url" << std::endl;

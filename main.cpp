@@ -517,7 +517,8 @@ int main(int argc, char *argv[])
             QString currentFileName(it.next());
 
             if (   !it.fileInfo().suffix().compare("jpg", Qt::CaseInsensitive)
-                || !it.fileInfo().suffix().compare("jpeg", Qt::CaseInsensitive))
+                || !it.fileInfo().suffix().compare("jpeg", Qt::CaseInsensitive)
+                || !it.fileInfo().suffix().compare("mp3", Qt::CaseInsensitive))
             {
                 displayFileName(currentFileName, true, isVerbose);
 
@@ -571,10 +572,9 @@ int main(int argc, char *argv[])
                 {
                     displayFileName(currentFileName, true, isVerbose);
 
-                    QString url("." + currentFileName);
                     bool urlPresent = false;
                     int amarokRating = 0;
-                    amarokDb.getRating(url, urlPresent, amarokRating);
+                    amarokDb.getRating(currentFileName, urlPresent, amarokRating);
                     if (amarokRating > 0)
                     {
                         int id3rating = 0;
@@ -619,10 +619,9 @@ int main(int argc, char *argv[])
                     ID3Utilities::getID3Rating(currentFileName, id3rating, isVerbose);
                     if (id3rating > 0)
                     {
-                        QString url("." + currentFileName);
                         bool urlPresent = false;
                         int amarokRating = 0;
-                        amarokDb.getRating(url, urlPresent, amarokRating);
+                        amarokDb.getRating(currentFileName, urlPresent, amarokRating);
                         if (!urlPresent)
                         {
                             displayFileName(currentFileName);
@@ -634,21 +633,20 @@ int main(int argc, char *argv[])
                             {
                                 displayFileName(currentFileName);
                                 std::cout << "  Needs to copy rating: " << id3rating << std::endl;
-                                amarokDb.setRating(url, id3rating);
+                                amarokDb.setRating(currentFileName, id3rating);
                             }
                         }
                     }
                     else if (forceCopy)
                     {
-                        QString url("." + currentFileName);
                         bool urlPresent = false;
                         int amarokRating = 0;
-                        amarokDb.getRating(url, urlPresent, amarokRating);
+                        amarokDb.getRating(currentFileName, urlPresent, amarokRating);
                         if (amarokRating != 0)
                         {
                             displayFileName(currentFileName);
                             std::cout << "  Needs to clear rating" << std::endl;
-                            amarokDb.setRating(url, id3rating);
+                            amarokDb.setRating(currentFileName, id3rating);
                         }
                     }
                 }
@@ -660,9 +658,8 @@ int main(int argc, char *argv[])
 
         if (isDisplayAmarok)
         {
-            QString url("." + workingDirectory);
             QMap<QString, int> ratings;
-            amarokDb.getAllRating(url, ratings);
+            amarokDb.getAllRating(workingDirectory, ratings);
 
             QMap<QString, int>::const_iterator i = ratings.constBegin();
             while (i != ratings.constEnd())
