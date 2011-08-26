@@ -80,6 +80,11 @@ bool ID3Utilities::setID3Rating(QString iFileName, int iRating, bool isVerbose)
             return false;
         }
     }
+    else
+    {
+        std::cout << "This file has no ID3v2 tag. No ID3v2 creation in Neposync so far" << std::endl;
+        return false;
+    }
     return true;
 }
 

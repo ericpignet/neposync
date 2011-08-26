@@ -64,7 +64,7 @@ void showUsage()
 
 void showVersion()
 {
-    std::cout << "Neposync 0.3" << std::endl;
+    std::cout << "Neposync 0.5" << std::endl;
     std::cout << "Copyright © 2010 Eric Pignet" << std::endl;
     std::cout << "Licence GPLv2+" << std::endl;
 }
