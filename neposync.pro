@@ -26,7 +26,10 @@ LIBS += -lkdeui \
     -lssl \
     -lkdecore \
     -lsoprano \
-    -lz
+    -lz \
+    -lcrypto \
+    -ldl \
+    -lrt
 
 HEADERS += AmarokCollection.h \
     ID3Utilities.h
