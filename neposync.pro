@@ -18,10 +18,12 @@ contains(QMAKE_HOST.arch, "x86_64") {
 
 LIBS += -lkdeui \
     -lnepomuk \
+    -lnepomukcore \
     -lkexiv2 \
     -ltag \
     -L/usr/lib/mysql \
     -lmysqld \
+    -laio \
     -lcrypt \
     -lssl \
     -lkdecore \

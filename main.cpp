@@ -18,11 +18,10 @@
  */
 
 
-#include <nepomuk/global.h>
-#include <nepomuk/resource.h>
-#include <nepomuk/resourcemanager.h>
-#include <nepomuk/tag.h>
-#include <nepomuk/variant.h>
+#include <nepomuk2/resource.h>
+#include <nepomuk2/resourcemanager.h>
+#include <nepomuk2/tag.h>
+#include <nepomuk2/variant.h>
 #include <Soprano/Vocabulary/NAO>
 
 #include <iostream>
@@ -208,7 +207,7 @@ int main(int argc, char *argv[])
         freopen ("/dev/null","w",stderr);
     }
     KExiv2Iface::KExiv2::initializeExiv2();
-    Nepomuk::ResourceManager::instance()->init();
+    Nepomuk2::ResourceManager::instance()->init();
 
     if (workingDirectory.isNull())
     {
@@ -252,18 +251,18 @@ int main(int argc, char *argv[])
             {
                 displayFileName(currentFileName, true, isVerbose);
 
-                Nepomuk::Resource aFile(it.filePath());
+                Nepomuk2::Resource aFile(it.filePath());
 
                 // Copy of tags
-                QList<Nepomuk::Variant> vl = aFile.property( Soprano::Vocabulary::NAO::hasTag() ).toVariantList();
+                QList<Nepomuk2::Variant> vl = aFile.property( Soprano::Vocabulary::NAO::hasTag() ).toVariantList();
                 if (!vl.isEmpty() || forceCopy)
                 {
                     KExiv2Iface::KExiv2 myExifData(currentFileName);
                     QStringList oldKeywords = myExifData.getIptcKeywords();
                     QStringList newKeywords;
-                    foreach (Nepomuk::Variant vv, vl)
+                    foreach (Nepomuk2::Variant vv, vl)
                     {
-                        Nepomuk::Tag tag(vv.toString());
+                        Nepomuk2::Tag tag(vv.toString());
                         newKeywords.append(tag.label());
                     }
                     QStringList oldKeywordsSorted(oldKeywords);
@@ -282,7 +281,7 @@ int main(int argc, char *argv[])
                 }
 
                 // Copy of rating
-                if (aFile.hasProperty(aFile.ratingUri()))
+                if (aFile.hasProperty(Soprano::Vocabulary::NAO::rating()))
                 {
                     KExiv2Iface::KExiv2 myXMPData(currentFileName);
                     QString rating = myXMPData.getXmpTagString("Xmp.xmp.Rating");
@@ -311,9 +310,9 @@ int main(int argc, char *argv[])
             {
                 displayFileName(currentFileName, true, isVerbose);
 
-                Nepomuk::Resource aFile(it.filePath());
+                Nepomuk2::Resource aFile(it.filePath());
 
-                if (aFile.hasProperty(aFile.ratingUri()))
+                if (aFile.hasProperty(Soprano::Vocabulary::NAO::rating()))
                 {
                     int id3rating = 0;
                     ID3Utilities::getID3Rating(currentFileName, id3rating, isVerbose);
@@ -358,23 +357,23 @@ int main(int argc, char *argv[])
                 QStringList keywords = myExifData.getIptcKeywords();
                 if (!keywords.isEmpty() || forceCopy)
                 {
-                    Nepomuk::Resource aFile(it.fileInfo().absoluteFilePath());
-                    QList<Nepomuk::Tag> fileTags = aFile.tags();
+                    Nepomuk2::Resource aFile(it.fileInfo().absoluteFilePath());
+                    QList<Nepomuk2::Tag> fileTags = aFile.tags();
 
                     // Remove unneeded tags, if any (more performant than removing everything then recreating)
-                    QList<Nepomuk::Variant> tagsToRemove;
-                    foreach (Nepomuk::Tag fileTag, fileTags)
+                    QList<Nepomuk2::Variant> tagsToRemove;
+                    foreach (Nepomuk2::Tag fileTag, fileTags)
                     {
                         if (!keywords.contains(fileTag.label()))
                         {
                             displayFileName(currentFileName);
                             std::cout << "  Needs to remove tag: " << fileTag.label().toStdString() << std::endl;
-                            tagsToRemove.append(fileTag.resourceUri());
+//@FIXME                            tagsToRemove.append(fileTag.resourceUri());
                         }
                     }
                     if (!tagsToRemove.isEmpty())
                     {
-                        Nepomuk::Variant tagsToRemoveVar(tagsToRemove);
+                        Nepomuk2::Variant tagsToRemoveVar(tagsToRemove);
                         aFile.removeProperty(Soprano::Vocabulary::NAO::hasTag(), tagsToRemoveVar);
                     }
 
@@ -385,7 +384,7 @@ int main(int argc, char *argv[])
                         {
                             displayFileName(currentFileName);
                             std::cout << "  Needs to add tag: " << QString(keyword.toLocal8Bit()).toStdString() << std::endl;
-                            Nepomuk::Tag tag(keyword);
+                            Nepomuk2::Tag tag(keyword);
                             tag.setLabel(keyword);
                             aFile.addTag(tag);
                         }
@@ -396,8 +395,8 @@ int main(int argc, char *argv[])
                 QString rating = myExifData.getXmpTagString("Xmp.xmp.Rating");
                 if (!rating.isNull())
                 {
-                    Nepomuk::Resource aFile(it.fileInfo().absoluteFilePath());
-                    if (!aFile.hasProperty(aFile.ratingUri()) || rating.toUInt() != aFile.rating())
+                    Nepomuk2::Resource aFile(it.fileInfo().absoluteFilePath());
+                    if (!aFile.hasProperty(Soprano::Vocabulary::NAO::rating()) || rating.toUInt() != aFile.rating())
                     {
                         displayFileName(currentFileName);
                         std::cout << "  Needs to replace rating: " << rating.toStdString() << std::endl;
@@ -406,12 +405,12 @@ int main(int argc, char *argv[])
                 }
                 else if (forceCopy)
                 {
-                    Nepomuk::Resource aFile(it.fileInfo().absoluteFilePath());
-                    if (aFile.hasProperty(aFile.ratingUri()))
+                    Nepomuk2::Resource aFile(it.fileInfo().absoluteFilePath());
+                    if (aFile.hasProperty(Soprano::Vocabulary::NAO::rating()))
                     {
                         displayFileName(currentFileName);
                         std::cout << "  Needs to clear rating" << std::endl;
-                        aFile.removeProperty(aFile.ratingUri());
+                        aFile.removeProperty(Soprano::Vocabulary::NAO::rating());
                     }
                 }
             }
@@ -423,8 +422,8 @@ int main(int argc, char *argv[])
                 ID3Utilities::getID3Rating(currentFileName, id3rating, isVerbose);
                 if (id3rating > 0)
                 {
-                    Nepomuk::Resource aFile(it.fileInfo().absoluteFilePath());
-                    if (!aFile.hasProperty(aFile.ratingUri()) || ((unsigned int)id3rating != aFile.rating()))
+                    Nepomuk2::Resource aFile(it.fileInfo().absoluteFilePath());
+                    if (!aFile.hasProperty(Soprano::Vocabulary::NAO::rating()) || ((unsigned int)id3rating != aFile.rating()))
                     {
                         displayFileName(currentFileName);
                         std::cout << "  Needs to replace rating: " << id3rating << std::endl;
@@ -433,12 +432,12 @@ int main(int argc, char *argv[])
                 }
                 else if (forceCopy)
                 {
-                    Nepomuk::Resource aFile(it.fileInfo().absoluteFilePath());
-                    if (aFile.hasProperty(aFile.ratingUri()))
+                    Nepomuk2::Resource aFile(it.fileInfo().absoluteFilePath());
+                    if (aFile.hasProperty(Soprano::Vocabulary::NAO::rating()))
                     {
                         displayFileName(currentFileName);
                         std::cout << "  Needs to clear rating" << std::endl;
-                        aFile.removeProperty(aFile.ratingUri());
+                        aFile.removeProperty(Soprano::Vocabulary::NAO::rating());
                     }
                 }
             }
@@ -465,15 +464,15 @@ int main(int argc, char *argv[])
             {
                 displayFileName(currentFileName, true, isVerbose);
 
-                Nepomuk::Resource aFile(it.filePath());
+                Nepomuk2::Resource aFile(it.filePath());
 
                 // Display tags
-                QList<Nepomuk::Tag> fileTags = aFile.tags();
+                QList<Nepomuk2::Tag> fileTags = aFile.tags();
                 if (!fileTags.isEmpty())
                 {
                     displayFileName(currentFileName);
                     std::cout << "  Tags:";
-                    foreach (Nepomuk::Tag fileTag, fileTags)
+                    foreach (Nepomuk2::Tag fileTag, fileTags)
                     {
                         std::cout << " " << QString(fileTag.label().toLocal8Bit()).toStdString();
                     }
@@ -481,7 +480,7 @@ int main(int argc, char *argv[])
                 }
 
                 // Display rating
-                if (aFile.hasProperty(aFile.ratingUri()))
+                if (aFile.hasProperty(Soprano::Vocabulary::NAO::rating()))
                 {
                     displayFileName(currentFileName);
                     std::cout << "  Rating: " << aFile.rating() << std::endl;
@@ -491,8 +490,8 @@ int main(int argc, char *argv[])
             {
                 displayFileName(currentFileName, true, isVerbose);
 
-                Nepomuk::Resource aFile(it.filePath());
-                if (aFile.hasProperty(aFile.ratingUri()))
+                Nepomuk2::Resource aFile(it.filePath());
+                if (aFile.hasProperty(Soprano::Vocabulary::NAO::rating()))
                 {
                     displayFileName(currentFileName);
                     std::cout << "  Rating: " << aFile.rating() << std::endl;
@@ -522,28 +521,28 @@ int main(int argc, char *argv[])
             {
                 displayFileName(currentFileName, true, isVerbose);
 
-                Nepomuk::Resource aFile(it.filePath());
+                Nepomuk2::Resource aFile(it.filePath());
 
                 // Clear tags
-                QList<Nepomuk::Tag> fileTags = aFile.tags();
+                QList<Nepomuk2::Tag> fileTags = aFile.tags();
                 if (!fileTags.isEmpty())
                 {
                     displayFileName(currentFileName);
                     std::cout << "  Remove tags:";
-                    foreach (Nepomuk::Tag fileTag, fileTags)
+                    foreach (Nepomuk2::Tag fileTag, fileTags)
                     {
                         std::cout << " " << fileTag.label().toStdString();
-                        aFile.removeProperty(Soprano::Vocabulary::NAO::hasTag(), fileTag.resourceUri());
+//@FIXME                        aFile.removeProperty(Soprano::Vocabulary::NAO::hasTag(), fileTag.resourceUri());
                     }
                     std::cout << std::endl;
                 }
 
                 // Clear rating
-                if (aFile.hasProperty(aFile.ratingUri()))
+                if (aFile.hasProperty(Soprano::Vocabulary::NAO::rating()))
                 {
                     displayFileName(currentFileName);
                     std::cout << "  Clear rating" << std::endl;
-                    aFile.removeProperty(aFile.ratingUri());
+                    aFile.removeProperty(Soprano::Vocabulary::NAO::rating());
                 }
             }
         }
